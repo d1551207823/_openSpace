@@ -8,16 +8,7 @@
 // 用私钥对符合 POW 4 个 0 开头的哈希值的 “昵称 + nonce” 进行私钥签名
 // 用公钥验证
 const crypto = require('crypto');
-const authors = '邓政坚'
-let nonce = 0;
-let start = new Date().getTime();
-let hash = '';
-let hashValue = '';
-let zero = '00000';
-let zero1 = '0000';
-let zeroResult = false
-let zeroResult1 = false
-const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+const {publicKey, privateKey} = crypto.generateKeyPairSync('rsa', {
     modulusLength: 1024,
     publicKeyEncoding: {
         type: 'spki',
@@ -28,44 +19,59 @@ const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
         format: 'pem'
     }
 })
-while (true) {
-    hash = authors + nonce;
-    hashValue = crypto.createHash
-    ('sha256').update(hash).digest('hex');
-    if (hashValue.startsWith(zero1) && !zeroResult) {
-        console.log('Zero:0000 => 花费时间：', (new Date().getTime() - start).toString() + 'ms');
-        console.log('Hash的内容：', hash);
-        console.log('Hash值：', hashValue);
-        zeroResult = true
-        // 签名
-        const sign = crypto.sign('sha256', Buffer.from(hash), {
-            key: privateKey,
-            padding: crypto.constants.RSA_PKCS1_PSS_PADDING
-        }).toString('base64')
-        console.log('签名：', sign);
-        // 验证签名
-        const verify = crypto.verify('sha256', Buffer.from(hash), {
-            key: publicKey,
-            padding: crypto.constants.RSA_PKCS1_PSS_PADDING
-        }, Buffer.from(sign, 'base64'))
-        console.log('验证签名：', verify,'\n');
-
-
-
-
-    }
-    if (hashValue.startsWith(zero)) {
-        console.log('Zero:00000 =>花费时间：', (new Date().getTime() - start).toString() + 'ms');
-        console.log('Hash的内容：', hash);
-        console.log('Hash值：', hashValue);
-        zeroResult1 = true
-    }
-    nonce++;
-    if (zeroResult && zeroResult1) {
-        break;
-    }
+const getHash = (str) => {
+    return crypto.createHash('sha256').update(hash).digest('hex');
+}
+const sign = (str) => {
+    return crypto.sign('sha256', Buffer.from(str), {
+        key: privateKey,
+        padding: crypto.constants.RSA_PKCS1_PSS_PADDING
+    }).toString('base64')
+}
+const verify = (str, sign) => {
+    return crypto.verify('sha256', Buffer.from(str), {
+        key: publicKey,
+        padding: crypto.constants.RSA_PKCS1_PSS_PADDING
+    }, Buffer.from(sign, 'base64'))
 }
 
 
-
+const main = () => {
+    const authors = '邓政坚'
+    let nonce = 0;
+    let start = new Date().getTime();
+    let hash = '';
+    let hashValue = '';
+    let zero = '00000';
+    let zero1 = '0000';
+    let zeroResult = false
+    let zeroResult1 = false
+    while (true) {
+        hashValue = authors + nonce;
+        hash = getHash(hashValue);
+        if (hash.startsWith(zero1) && !zeroResult) {
+            console.log('Zero:0000 => 花费时间：', (new Date().getTime() - start).toString() + 'ms');
+            console.log('Hash的内容：', hashValue);
+            console.log('Hash值：', hash);
+            zeroResult = true
+            // 签名
+            const signValue = sign(hashValue)
+            console.log('签名：', signValue)
+            // 验证
+            const verifyResult = verify(hashValue, signValue)
+            console.log('验证：', verifyResult)
+        }
+        if (hashValue.startsWith(zero)) {
+            console.log('Zero:00000 =>花费时间：', (new Date().getTime() - start).toString() + 'ms');
+            console.log('Hash的内容：', hash);
+            console.log('Hash值：', hashValue);
+            zeroResult1 = true
+        }
+        nonce++;
+        if (zeroResult && zeroResult1) {
+            break;
+        }
+    }
+}
+main()
 
