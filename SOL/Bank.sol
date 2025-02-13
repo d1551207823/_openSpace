@@ -31,9 +31,9 @@ contract Bank {
         }
     }
     function withdraw(uint256 _amount) public {
-        require(msg.sender == owner, "不是管理");
-        require(_amount > 0, "无效的提取数量");
-        require(address(this).balance >= _amount, "当前合约余额不满足提取数量");
+        require(msg.sender == owner, "Permission denied");
+        require(_amount > 0, "Invalid amount");
+        require(address(this).balance >= _amount, "Insufficient balance");
         payable(msg.sender).transfer(_amount);
     }
 }
