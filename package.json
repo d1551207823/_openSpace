@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/d1551207823/_openSpace/issues"
   },
-  "homepage": "https://github.com/d1551207823/_openSpace#readme"
+  "homepage": "https://github.com/d1551207823/_openSpace#readme",
+  "dependencies": {
+    "ethers": "^6.13.5"
+  }
 }
